@@ -38,7 +38,7 @@ If you wish to contribute your own demo, please try to the follow the structure 
 
 - README.MD containing all of the steps for deploying the demo, any configuration, caveats and useful links.
 - Any scripts or yaml files used to deploy and configure the demo.
-- Any associated licence with any re-used code, I.E if you fork code make sure it includes original licence. 
+- Any associated licence with any re-used code, I.E if you fork code make sure it includes original licence.
 
 ## Useful Links
 - [Canoical Kubernetes](https://www.ubuntu.com/kubernetes)
