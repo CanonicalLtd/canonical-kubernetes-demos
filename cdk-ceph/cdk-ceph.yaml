@@ -43,7 +43,7 @@ applications:
       gui-x: '600'
       gui-y: '300'
     to:
-     - lxd:kubernetes-worker
+     - kubernetes-worker
   etcd:
     charm: 'cs:~containers/etcd'
     num_units: 3

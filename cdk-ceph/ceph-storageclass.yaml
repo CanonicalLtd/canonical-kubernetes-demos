@@ -8,7 +8,7 @@ metadata:
 provisioner: kubernetes.io/rbd
 parameters:
   # change the monitors to match your IP addresses of your ceph mon nodes
-  monitors: 192.168.0.10:6789,192.168.0.11:6789,192.168.0.12:6789
+  monitors: 172.31.10.198:6789,172.31.21.183:6789,172.31.43.148:6789
   adminId: admin
   adminSecretName: ceph-secret
   adminSecretNamespace: default
