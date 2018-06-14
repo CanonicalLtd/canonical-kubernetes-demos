@@ -152,6 +152,8 @@ Next we copy over the configuration file:
 Finally, using kubectl we can check that kubernetes cluster interaction is possible:
 
 ```
+ kubectl cluster-info
+
 Kubernetes master is running at https://34.253.164.197:443
 
 Heapster is running at https://34.253.164.197:443/api/v1/namespaces/kube-system/services/heapster/proxy
