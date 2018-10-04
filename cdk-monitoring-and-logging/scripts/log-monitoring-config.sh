@@ -7,11 +7,14 @@
 # gather vars (stripping quotes) for later config and result message
 grafana_public_ip=$(juju status  grafana --format yaml | grep public-address | sed -e 's/public-address://g' | sed -e 's/ //g')
 grafana_port=$(juju config grafana port | sed -e 's/"//g')
-kube_client_pass=$(juju run --unit kubernetes-master/0 'cat /home/ubuntu/config' | grep 'password:' | sed -e 's/ *//g' -e 's/password://')
+#kube_client_pass=$(juju run --unit kubernetes-master/0 'cat /home/ubuntu/config' | grep 'password:' | sed -e 's/ *//g' -e 's/password://')
+kube_client_pass=$(juju run --unit kubernetes-master/0 'cut -d, -f1 /root/cdk/basic_auth.csv')
+echo kubeclient pass: $kube_client_pass
 kube_ingress_ip=$(juju run --unit kubeapi-load-balancer/0 'network-get website --format yaml --ingress-address' | head -1)
 
 # configure k8s prometheus scraper
 juju config prometheus scrape-jobs="$(sed -e s/K8S_PASSWORD/$kube_client_pass/g -e s/K8S_API_ENDPOINT/$kube_ingress_ip/g ./prometheus-scrape-k8s.yaml)"
+juju config prometheus2 scrape-jobs="$(sed -e s/K8S_PASSWORD/$kube_client_pass/g -e s/K8S_API_ENDPOINT/$kube_ingress_ip/g ./prometheus-scrape-k8s.yaml)"
 
 # setup grafana dashboards
 juju run-action --wait grafana/0 import-dashboard dashboard="$(base64 ./grafana-telegraf.json)"

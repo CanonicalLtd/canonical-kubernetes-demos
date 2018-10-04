@@ -64,14 +64,14 @@ We can now add some storage to the ceph OSD nodes:
 
 ```
 # commands for AWS
-juju add-storage ceph-osd/0 osd-devices=ebs,10G,1
-juju add-storage ceph-osd/1 osd-devices=ebs,10G,1
-juju add-storage ceph-osd/2 osd-devices=ebs,10G,1
+juju add-storage ceph-osd/0 osd-devices=ebs,100G,1
+juju add-storage ceph-osd/1 osd-devices=ebs,100G,1
+juju add-storage ceph-osd/2 osd-devices=ebs,100G,1
 
 # commands for Azure
-juju add-storage ceph-osd/0 osd-devices=azure,10G,1
-juju add-storage ceph-osd/1 osd-devices=azure,10G,1
-juju add-storage ceph-osd/2 osd-devices=azure,10G,1
+juju add-storage ceph-osd/0 osd-devices=azure,100G,1
+juju add-storage ceph-osd/1 osd-devices=azure,100G,1
+juju add-storage ceph-osd/2 osd-devices=azure,100G,1
 ```
 
 You can now monitor the status again, you will see that the storage is being attached to the OSD nodes using:

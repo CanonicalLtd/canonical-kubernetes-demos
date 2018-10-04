@@ -1,0 +1,134 @@
+series: xenial
+description: A Canonical Kubernetes cluster including the monitoring stack.
+services:
+  easyrsa:
+    annotations:
+      gui-x: '450'
+      gui-y: '550'
+    charm: cs:~containers/easyrsa
+    num_units: 1
+    to:
+     - 'lxd:kubernetes-master/0'
+  etcd:
+    annotations:
+      gui-x: '800'
+      gui-y: '550'
+    charm: cs:~containers/etcd
+    constraints: cores=4 mem=16G
+    num_units: 3
+    options:
+      channel: 3.2/stable
+  canal:
+    annotations:
+      gui-x: '450'
+      gui-y: '750'
+    charm: cs:~containers/canal
+  kubeapi-load-balancer:
+    annotations:
+      gui-x: '450'
+      gui-y: '250'
+    charm: cs:~containers/kubeapi-load-balancer
+    expose: true
+    num_units: 1
+  kubernetes-master:
+    annotations:
+      gui-x: '800'
+      gui-y: '850'
+    charm: cs:~containers/kubernetes-master
+    constraints: cores=4 mem=16G
+    num_units: 2
+    to:
+    options:
+      channel: 1.11/stable
+      # Do not enable RBAC before setting up the monitoring tools
+      # authorization-mode: "RBAC,Node"
+      # allow-privileged: "true"
+  kubernetes-worker:
+    annotations:
+      gui-x: '100'
+      gui-y: '850'
+      # Do not enable RBAC before setting up the monitoring tools 
+      # allow-privileged: "true" 
+    charm: cs:~containers/kubernetes-worker
+    constraints: cores=4 mem=16G
+    expose: true
+    num_units: 3
+    options:
+      channel: 1.11/stable
+  ### Monitoring ###
+  grafana:
+    charm: cs:xenial/grafana
+    num_units: 1
+    expose: true
+  prometheus:
+    charm: cs:xenial/prometheus
+    num_units: 1
+  telegraf:
+    charm: cs:xenial/telegraf
+  apache2:
+    charm: cs:xenial/apache2
+    num_units: 1
+    expose: true
+    options:
+      enable_modules: "headers proxy_html proxy_http"
+  elasticsearch:
+    charm: cs:xenial/elasticsearch
+    num_units: 1
+  filebeat:
+    charm: cs:xenial/filebeat
+    options:
+      logpath: '/var/log/*.log'
+      kube_logs: True
+  graylog:
+    charm: cs:xenial/graylog
+    num_units: 1
+  mongodb:
+    charm: cs:xenial/mongodb
+    num_units: 1
+    options:
+      extra_daemon_options: "--bind_ip_all"
+relations:
+- - kubernetes-master:kube-api-endpoint
+  - kubeapi-load-balancer:apiserver
+- - kubernetes-master:loadbalancer
+  - kubeapi-load-balancer:loadbalancer
+- - kubernetes-master:kube-control
+  - kubernetes-worker:kube-control
+- - kubernetes-master:certificates
+  - easyrsa:client
+- - etcd:certificates
+  - easyrsa:client
+- - kubernetes-master:etcd
+  - etcd:db
+- - kubernetes-worker:certificates
+  - easyrsa:client
+- - kubernetes-worker:kube-api-endpoint
+  - kubeapi-load-balancer:website
+- - kubeapi-load-balancer:certificates
+  - easyrsa:client
+- - canal:etcd
+  - etcd:db 
+- - canal:cni
+  - kubernetes-master:cni
+- - canal:cni
+  - kubernetes-worker:cni
+- - prometheus:grafana-source
+  - grafana:grafana-source
+- - telegraf:prometheus-client
+  - prometheus:target
+- - kubernetes-master:juju-info
+  - telegraf:juju-info
+- - kubernetes-worker:juju-info
+  - telegraf:juju-info
+- - apache2:reverseproxy
+  - graylog:website
+- - graylog:elasticsearch
+  - elasticsearch:client
+- - graylog:mongodb
+  - mongodb:database
+- - filebeat:beats-host
+  - kubernetes-master:juju-info
+- - filebeat:beats-host
+  - kubernetes-worker:juju-info
+- - filebeat:logstash
+  - graylog:beats
